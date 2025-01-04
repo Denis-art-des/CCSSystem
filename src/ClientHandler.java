@@ -26,7 +26,8 @@ public class ClientHandler implements Runnable {
                 String[] messageParts = message.trim().split(" ");
 
                 if (messageParts.length != 3) {
-
+                    server.updatePeriodIncorrectOperations();
+                    server.updateIncorrectOperations();
                     recipientOut.println("Error");
                     continue;
                 }
@@ -38,26 +39,41 @@ public class ClientHandler implements Runnable {
                     switch (messageParts[0]) {
                         case "ADD":
                             result = arg1 + arg2;
+                            server.updateGlobalOperationCount("ADD");
+                            server.updatePeriodOperationCount("ADD");
                             break;
                         case "SUB":
                             result = arg1 - arg2;
+                            server.updateGlobalOperationCount("SUB");
+                            server.updatePeriodOperationCount("SUB");
                             break;
                         case "MUL":
                             result = arg1 * arg2;
+                            server.updateGlobalOperationCount("MUL");
+                            server.updatePeriodOperationCount("MUL");
                             break;
                         case "DIV":
                             result = arg1 / arg2;
+                            server.updateGlobalOperationCount("DIV");
+                            server.updatePeriodOperationCount("DIV");
                             break;
                         default:
+                            server.updatePeriodIncorrectOperations();
+                            server.updateIncorrectOperations();
                             recipientOut.println("Error");
                             continue;
                     }
                     recipientOut.println(result);
+                    server.updateValuesSum(result);
+                    server.updatePeriodValuesSum(result);
                 } catch (NumberFormatException | ArithmeticException e) {
+                    server.updatePeriodIncorrectOperations();
+                    server.updateIncorrectOperations();
                     recipientOut.println("Error");
                 }
 
-
+                server.updateComputedRequests();
+                server.updatePeriodComputedRequests();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
